@@ -27,7 +27,7 @@ private slots:
     void onEtProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void onEtProcessStateChanged(QProcess::ProcessState newState);
     void onEtProcessErrorOccured(QProcess::ProcessError error);
-    void onEtCmdCompleted(int cmdId, int execTime, const QByteArray &cmdOutputChannel, const QByteArray &cmdErrorChannel);
+    void onEtCmdCompleted(int cmdId, const QByteArray &cmdStdOut, const QByteArray &cmdErrOut, qint64 execTime);
 
 // VARIABLES
 private:

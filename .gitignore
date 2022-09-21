@@ -52,5 +52,5 @@ compile_commands.json
 *creator.user*
 
 # [Philippe VL add] Exclude DevHeader
-devHelper.pro
-/devHelper/*
+ZExifToolProcess_DevTool.pro
+/ZExifToolProcess_DevTool/*

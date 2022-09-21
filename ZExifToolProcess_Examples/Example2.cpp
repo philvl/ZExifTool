@@ -5,17 +5,19 @@
 
 Example2::Example2(QWidget *parent) : QWidget(parent), ui(new Ui::Example2) {
     ui->setupUi(this);
-    const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    const QFont fixedFont= QFontDatabase::systemFont(QFontDatabase::FixedFont);
     ui->textEditStdOut->setFont(fixedFont);
     ui->textEditStdErr->setFont(fixedFont);
 
     // Create ZExifToolProcess
-    etProcess= new ZExifToolProcess(this);
-  #if defined Q_OS_LINUX || defined Q_OS_MACOS
-    etProcess->setProgram(QLatin1String("./exiftool/exiftool"));
-  #elif defined Q_OS_WINDOWS
-    etProcess->setProgram(QLatin1String("./exiftool.exe"));
+  #ifdef Q_OS_WINDOWS
+    QString etExePath=   QLatin1String("./exiftool.exe");
+    QString perlExePath= QString();
+  #elif defined Q_OS_LINUX || defined Q_OS_MACOS
+    QString etExePath=   QLatin1String("./exiftool/exiftool");
+    QString perlExePath= QString();
   #endif
+    etProcess= new ZExifToolProcess(etExePath, perlExePath, this);
     connect(etProcess, &ZExifToolProcess::started,       this, &Example2::onEtProcessStarted);
     connect(etProcess, &ZExifToolProcess::finished,      this, &Example2::onEtProcessFinished);
     connect(etProcess, &ZExifToolProcess::stateChanged,  this, &Example2::onEtProcessStateChanged);
@@ -24,13 +26,15 @@ Example2::Example2(QWidget *parent) : QWidget(parent), ui(new Ui::Example2) {
 }
 
 Example2::~Example2() {
+    // Terminate exiftool safely, before delete Ui
+    etProcess->terminateSafely();
     delete ui;
 }
 
 void Example2::on_pushButtonRead_clicked() {
     // Start ZExifToolProcess
     etProcess->start();
-    if(!etProcess->waitForStarted(500)) {
+    if(!etProcess->waitForStarted(1000)) {
         etProcess->kill();
         return;
     }
@@ -41,7 +45,7 @@ void Example2::on_pushButtonRead_clicked() {
     if(ui->checkBoxExtractBinary->isChecked())  cmdArgs << "-binary";
     if(ui->checkBoxPrintTagID->isChecked())     cmdArgs << "-hex";
     if(ui->checkBoxPrintDescValue->isChecked()) cmdArgs << "-long";
-    cmdArgs << ui->lineEditImgPath->text().toLatin1();
+    cmdArgs << ui->lineEditImgPath->text().toUtf8();
 
     // Send command to ZExifToolProcess
     etProcess->command(cmdArgs);
@@ -62,9 +66,9 @@ void Example2::onEtProcessFinished(int exitCode, QProcess::ExitStatus exitStatus
 // This slot is called when ZExifToolProcess state changed
 void Example2::onEtProcessStateChanged(QProcess::ProcessState newState) {
     switch(newState) {
-    case QProcess::NotRunning: ui->labelProcessStatus->setText("Not running"); break;
-    case QProcess::Starting:   ui->labelProcessStatus->setText("Starting");    break;
-    case QProcess::Running:    ui->labelProcessStatus->setText("<b>Running...</b>");     break;
+    case QProcess::NotRunning: ui->labelProcessStatus->setText("Not running");       break;
+    case QProcess::Starting:   ui->labelProcessStatus->setText("Starting");          break;
+    case QProcess::Running:    ui->labelProcessStatus->setText("<b>Running...</b>"); break;
     }
 }
 
@@ -79,16 +83,13 @@ void Example2::onEtProcessErrorOccured(QProcess::ProcessError error) {
 // This slot is called on exiftool command completed
 //   cmdOutput channel contains exiftool stdout
 //   cmdSrror  channel contains exiftool stderr
-void Example2::onEtCmdCompleted(int cmdId, int execTime, const QByteArray &cmdOutputChannel, const QByteArray &cmdErrorChannel) {
-    // Show result as JSON (stdOut)
-    ui->textEditStdOut->setPlainText(cmdOutputChannel);
-
-    // Show error (stdErr)
-    ui->textEditStdErr->setPlainText(cmdErrorChannel);
+void Example2::onEtCmdCompleted(int cmdId, const QByteArray &cmdStdOut, const QByteArray &cmdErrOut, qint64 execTime) {
+    ui->textEditStdOut->setPlainText(cmdStdOut); // Show result as JSON (stdOut)
+    ui->textEditStdErr->setPlainText(cmdErrOut);  // Show error (stdErr)
 
     // Show info
     ui->labelInfo->setText("Cmd ID: " + QString::number(cmdId) + " - Exec time: " + QString::number(execTime) + "ms");
 
-    // Stop ZExifToolProcess on command complete
+    // Stop ZExifToolProcess
     etProcess->terminate();
 }

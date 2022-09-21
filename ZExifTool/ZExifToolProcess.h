@@ -1,4 +1,4 @@
-/*
+/*//
 MIT License
 
 Copyright (c) 2020 Philippe Vianney-Liaud | https://github.com/philvl
@@ -25,61 +25,49 @@ SOFTWARE.
 #ifndef Z_EXIFTOOL_PROCESS_H
 #define Z_EXIFTOOL_PROCESS_H
 
-// Qt Core
 #include <QObject>
-#include <QElapsedTimer>
 #include <QProcess>
-#include <QMutex>
+class QElapsedTimer;
 
 class ZExifToolProcess : public QObject {
     Q_OBJECT
-// STRUCTS
-private:
-    struct Command {
-        int id;
-        QByteArray argsStr;
-    };
-
-// METHODS
 public:
-    ZExifToolProcess(QObject *parent= nullptr);
+    explicit ZExifToolProcess(const QString &etExePath, const QString &perlExePath= QString(), QObject *parent= nullptr);
     ~ZExifToolProcess();
-    void setProgram(const QString &etExePath, const QString &perlExePath= QString());
-    void start();
 
 public slots:
-    void terminate();
-    void kill();
+    void start();                        // Override QProcess fct
+    void terminate();                    // Override QProcess fct
+    void terminateSafely(int msecs= -1); // Added funct
+    void kill();                         // Call QProcess fct
 
 public:
-    bool isRunning() const;
-    bool isBusy() const;
+    bool isRunning() const; // Added funct
+    bool isBusy()    const; // Added funct
     //--
-    qint64 processId() const;
-    QProcess::ProcessState state() const;
-    QProcess::ProcessError error() const;
-    QString                errorString() const;
-    QProcess::ExitStatus   exitStatus() const;
-    int exitCode() const;
+    QStringList            arguments()   const; // Call QProcess fct
+    QProcess::ProcessError error()       const; // Override QProcess fct
+    QString                errorString() const; // Override QProcess fct
+    QProcess::ExitStatus   exitStatus()  const; // Call QProcess fct
+    int                    exitCode()    const; // Call QProcess fct
+    qint64                 processId()   const; // Call QProcess fct
+    QProcess::ProcessState state()       const; // Call QProcess fct
     //--
-    bool waitForStarted(int msecs= 30000);
-    bool waitForFinished(int msecs= 30000);
-    //bool waitForCompleted(int msecs= 30000); // TODO: Need to be implemented
+    bool waitForStarted( int msecs= 1000);      // Call QProcess fct
+    bool waitForFinished(int msecs=   -1);      // Call QProcess fct
 
-    int command(const QByteArrayList &args);
+public slots:
+    quint32 command(const QByteArrayList &args); // Added funct
 private:
     void execNextCmd();
 
-private slots:
-    void onStarted();
-    void onFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void onStateChanged(QProcess::ProcessState newState);
-    void onErrorOccurred(QProcess::ProcessError error);
-    void onReadyReadStandardOutput();
-    void onReadyReadStandardError();
 private:
     void readOutput(const QProcess::ProcessChannel channel);
     void setProcessErrorAndEmit(QProcess::ProcessError error, const QString &description);
+
+private slots:
+    void onErrorOccurred(QProcess::ProcessError error);
+    void onFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 signals:
     void started();
@@ -87,31 +75,30 @@ signals:
     void stateChanged(QProcess::ProcessState newState);
     void errorOccurred(QProcess::ProcessError error);
     //--
-    void cmdCompleted(int cmdId, int execTime, const QByteArray &cmdOutputChannel, const QByteArray &cmdErrorChannel);
+    void newBuffData(QProcess::ProcessChannel channel, const QByteArray &rawData); // For debug only
+    void cmdCompleted(int cmdId, const QByteArray &cmdStdOut, const QByteArray &cmdErrOut, qint64 execTime);
+
 
 // VARIABLES
 private:
-    static       QMutex _cmdIdMutex;
-    static const int    CMD_ID_MIN;
-    static const int    CMD_ID_MAX;
-    static       int    _nextCmdId; // Unique identifier, even in a multi-instances or multi-thread environment
+    static const quint32   CMD_ID_MIN;
+    static const quint32   CMD_ID_MAX;
+    static const qsizetype CMD_ID_LEN;
+    static       quint32   _nextCmdId; // Unique identifier, even in a multi-instances or multi-thread environment
 
-    QString   _etExePath;
-    QString   _perlExePath;
-    QProcess *_process;
+    QElapsedTimer *_execTimer;
+    QProcess      *_process;
 
-    QElapsedTimer  _execTimer;
-    QList<Command> _cmdQueue;
-    int            _cmdRunning;
+    bool           _pendingTerminate;
+    bool           _cmdRunning;
+    QByteArrayList _cmdQueue;
 
-    int        _outAwait[2]; // [0] StandardOutput | [1] ErrorOutput
-    bool       _outReady[2]; // [0] StandardOutput | [1] ErrorOutput
-    QByteArray _outBuff[2];  // [0] StandardOutput | [1] ErrorOutput
-
-    bool _writeChannelIsClosed;
+    qsizetype  _readyBeginPos[2];  // [0] StandardOutput | [1] ErrorOutput
+    qsizetype  _readyEndPos[2];    // [0] StandardOutput | [1] ErrorOutput
+    QByteArray _outBuff[2];        // [0] StandardOutput | [1] ErrorOutput
 
     QProcess::ProcessError _processError;
-    QString _errorString;
+    QString                _errorString;
 };
 
 #endif // Z_EXIFTOOL_PROCESS_H

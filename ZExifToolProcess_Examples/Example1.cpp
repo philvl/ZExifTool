@@ -3,8 +3,9 @@
 
 Example1::Example1(QWidget *parent) : QWidget(parent), ui(new Ui::Example1) {
     ui->setupUi(this);
-    const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    const QFont fixedFont= QFontDatabase::systemFont(QFontDatabase::FixedFont);
     ui->textEditStdOut->setFont(fixedFont);
+    ui->textEditStdErr->setFont(fixedFont);
 
     // Populate combobox
     //------------------------Description ------------------------------------ Command --
@@ -26,12 +27,14 @@ Example1::Example1(QWidget *parent) : QWidget(parent), ui(new Ui::Example1) {
     ui->comboBoxCmd->addItem("Print exiftool version number (-ver)",          "-ver"   );
 
     // Create ZExifToolProcess
-    etProcess= new ZExifToolProcess(this);
-  #if defined Q_OS_LINUX || defined Q_OS_MACOS
-    etProcess->setProgram(QLatin1String("./exiftool/exiftool"));
-  #elif defined Q_OS_WINDOWS
-    etProcess->setProgram(QLatin1String("./exiftool.exe"));
+  #ifdef Q_OS_WINDOWS
+    QString etExePath=   QLatin1String("./exiftool.exe");
+    QString perlExePath= QString();
+  #elif defined Q_OS_LINUX || defined Q_OS_MACOS
+    QString etExePath=   QLatin1String("./exiftool/exiftool");
+    QString perlExePath= QString();
   #endif
+    etProcess= new ZExifToolProcess(etExePath, perlExePath, this);
     connect(etProcess, &ZExifToolProcess::started,       this, &Example1::onEtProcessStarted);
     connect(etProcess, &ZExifToolProcess::finished,      this, &Example1::onEtProcessFinished);
     connect(etProcess, &ZExifToolProcess::stateChanged,  this, &Example1::onEtProcessStateChanged);
@@ -40,13 +43,15 @@ Example1::Example1(QWidget *parent) : QWidget(parent), ui(new Ui::Example1) {
 }
 
 Example1::~Example1() {
+    // Terminate exiftool safely, before delete Ui
+    etProcess->terminateSafely();
     delete ui;
 }
 
 void Example1::on_pushButtonRead_clicked() {
     // Start ZExifToolProcess
     etProcess->start();
-    if(!etProcess->waitForStarted(500)) {
+    if(!etProcess->waitForStarted(1000)) {
         etProcess->kill();
         return;
     }
@@ -76,9 +81,9 @@ void Example1::onEtProcessFinished(int exitCode, QProcess::ExitStatus exitStatus
 // This slot is called when ZExifToolProcess state changed
 void Example1::onEtProcessStateChanged(QProcess::ProcessState newState) {
     switch(newState) {
-    case QProcess::NotRunning: ui->labelProcessStatus->setText("Not running"); break;
-    case QProcess::Starting:   ui->labelProcessStatus->setText("Starting");    break;
-    case QProcess::Running:    ui->labelProcessStatus->setText("<b>Running...</b>");     break;
+    case QProcess::NotRunning: ui->labelProcessStatus->setText("Not running");       break;
+    case QProcess::Starting:   ui->labelProcessStatus->setText("Starting");          break;
+    case QProcess::Running:    ui->labelProcessStatus->setText("<b>Running...</b>"); break;
     }
 }
 
@@ -93,11 +98,9 @@ void Example1::onEtProcessErrorOccured(QProcess::ProcessError error) {
 // This slot is called on exiftool command completed
 //   cmdOutput channel contains exiftool stdout
 //   cmdSrror  channel contains exiftool stderr
-void Example1::onEtCmdCompleted(int cmdId, int execTime, const QByteArray &cmdOutputChannel, const QByteArray &cmdErrorChannel) {
-    Q_UNUSED(cmdErrorChannel)
-
-    // Show result as JSON (stdOut)
-    ui->textEditStdOut->setPlainText(cmdOutputChannel);
+void Example1::onEtCmdCompleted(int cmdId, const QByteArray &cmdStdOut, const QByteArray &cmdErrOut, qint64 execTime) {
+    ui->textEditStdOut->setPlainText(cmdStdOut); // Show result as JSON (stdOut)
+    ui->textEditStdErr->setPlainText(cmdErrOut);  // Show error (stdErr)
 
     // Show info
     ui->labelInfo->setText("Cmd ID: " + QString::number(cmdId) + " - Exec time: " + QString::number(execTime) + "ms");

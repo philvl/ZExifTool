@@ -1,5 +1,5 @@
 # ZExifTool - Qt5 and Qt6 interface for exiftool
-Qt5 and Qt6 interface for exiftool by Phil Harvey
+Qt6 interface for exiftool by Phil Harvey
 
 
 ## Description
@@ -15,16 +15,14 @@ ZExifTool have the same feature as C ++ Interface for ExifTool (by Phil Harvey) 
 
 ## Qt Compatibility
 ZExifTool has been tested on Windows, Linux and MacOs with:
-- Qt 5.9.9   / c++11
-- Qt 5.12.10 / c++11
-- Qt 5.15.2  / c++11, c++14, c++17
-- Qt 6.0.1   / c++11, c++14, c++17
+- Qt 6.0 / c++11, c++14, c++17
+- Qt 6.2 / c++11, c++14, c++17
 
 
 ## Installation
 The easiest way to include ZExifTool in your project is to copy the ZExifTool folder to your project tree and to add the following include() to your Qt project (.pro) file:
 
-    include("ZExifTool/ZExifTool.pri")
+    include("ZExifTool/Lib_ZExifTool.pri")
 
 Now, you are ready!
 
@@ -39,12 +37,12 @@ First of all, you need to download exiftool at https://exiftool.org.
 #include "ZExifTool/ZExifToolProcess.h"
 
 // Create a ZExifToolProcess instance
-etProcess= new ZExifToolProcess(this);
-#if defined Q_OS_LINUX || defined Q_OS_MACOS
-    etProcess->setProgram(QLatin1String("./exiftool/exiftool"));
-#elif defined Q_OS_WINDOWS
-    etProcess->setProgram(QLatin1String("./exiftool.exe"));
+#ifdef Q_OS_WINDOWS
+  QString etExePath=   QLatin1String("./exiftool.exe");
+#elif defined Q_OS_LINUX || defined Q_OS_MACOS
+  QString etExePath=   QLatin1String("./exiftool/exiftool");
 #endif
+etProcess= new ZExifToolProcess(etExePath, QString(), this);
 
 // Connect at least cmdCompleted signal to slot
 connect(etProcess, &ZExifToolProcess::cmdCompleted, this, &MyClass::onCmdCompleted);
@@ -71,13 +69,13 @@ int cmdId= etProcess->command(cmdArgs); // See additional notes
 
 ```c++
 // This slot is called on exiftool command completed
-//-- cmdId: is the command ID
-//-- execTime: command execution time in ms
-//-- stdOut: exiftool standard output
-//-- stdErr: exiftool error output
-void MyClass::onCmdCompleted(int cmdId, int execTime, const QByteArray &stdOut, const QByteArray &stdErr) {
+//-- cmdId:     is the command ID
+//-- cmdStdOut: exiftool standard output
+//-- cmdErrOut: exiftool error output
+//-- execTime:  command execution time in ms
+void MyClass::onCmdCompleted(int cmdId, const QByteArray &cmdStdOut, const QByteArray &cmdErrOut, qint64 execTime) {
     // Convert JSON array as QVariantMap
-    QJsonDocument jsonDoc=     QJsonDocument::fromJson(cmdOutputChannel);
+    QJsonDocument jsonDoc=     QJsonDocument::fromJson(cmdStdOut);
     QJsonArray    jsonArray=   jsonDoc.array();
     QJsonObject   jsonObject=  jsonArray.at(0).toObject();
     QVariantMap   metadataMap= jsonObject.toVariantMap();
@@ -92,56 +90,74 @@ void MyClass::onCmdCompleted(int cmdId, int execTime, const QByteArray &stdOut, 
 ```c++
 class ZExifToolProcess : public QObject {
 public:
-    // Builds a ZExifToolProcess object with the given parent.
-    ZExifToolProcess(QObject *parent= nullptr);
+    // Constructs a ZExifToolProcess object with exiftool executable path, perl executable path and the given parent.
+    // Internally, set the startup arguments of the exiftool process ("-stay_open true -@ -").
+    // Each new ZExifToolProcess object maintains an independent exiftool process/application.
+    ZExifToolProcess(const QString &etExePath, const QString &perlExePath= QString(), QObject *parent= nullptr);
     
-    // Destructs the ZExifToolProcess object, i.e., killing the process.
+    // Destructs the ZExifToolProcess object, i.e., killing exiftool process immediately.
+    // WARNING: This function may corrupt files if exiftool performs write operations.
     ~ZExifToolProcess();
     
-    // Attempts to terminate the process.
-    void setProgram(const QString &etExePath, const QString &perlExePath= QString());
-    
-    // Starts exiftool in a new process.
+public slots:
+    // Start the exiftool process
     void start();
     
-public slots:
-    // Attempts to terminate the process.
+    // Attempts to terminate the exiftool process gracefully.
+    // Flush the command queue, then instructs exiftool to terminate after the current command is completed.
+    // After calling this function, sending commands to exiftool becomes impossible.
+    // This function returns immediately. If you want to wait for the exiftool process to finish, use waitForFinished() after terminate().
     void terminate();
     
-    // Kills the current process, causing it to exit immediately.
+    // Terminate the exiftool process gracefully.
+    // Flush the command queue, then blocks until the current command is completed, the exiftool process has finished and the finished() signal has been emitted, or until msecs milliseconds have passed (Default: no timeout).
+    // Calling this function from the main (GUI) thread might cause your user interface to freeze.
+    void terminateSafely(int msecs= -1) {
+    
+    // Kills the exiftool process, causing it to exit immediately.
+    // WARNING: This function may corrupt files if exiftool performs write operations.
     void kill();
     
 public:
-    // Returns true if ZExifToolProcess is running (process state == Running)
+    // Returns true if the exiftool process is running
     bool isRunning() const;
     
-    // Returns true if a command is running
+    // Returns true if the exiftool process is busy, i.e., a command is running
     bool isBusy() const;
-
-    // Returns the native process identifier for the running process, if available. If no process currently running, 0 is returned
-    qint64 processId() const;
     
-    // Returns the current state of the process.
-    QProcess::ProcessState state() const;
+    // Returns the command line arguments the exiftool process start with.
+    QStringList arguments() const;
     
-    // Returns the type of error that occurred last.
+    // Returns the type of error that occurred last (FailedToStart, Crashed, Timedout, ReadError, WriteError or UnknownError).
     QProcess::ProcessError error() const;
     
-    // Returns an error message
+    // Returns a human-readable description of the last error that occurred.
     QString errorString() const;
-    
-    // Returns the exit status of the last process that finished.
-    QProcess::ExitStatus exitStatus() const;
-    int exitCode() const;
-    
-    // Blocks until the process has started and the started() signal has been emitted, or until msecs milliseconds have passed.
-    bool waitForStarted(int msecs= 30000);
-    
-    // Blocks until the process has finished and the finished() signal has been emitted, or until msecs milliseconds have passed.
-    bool waitForFinished(int msecs= 30000);
 
-    // Sends a command to exiftool process
-    int command(const QByteArrayList &args);
+    // Returns the exit status of the last exiftool process that finished (NormalExit | CrashExit).
+    // On Windows, if the process was terminated with TerminateProcess() from another application, this function will still return NormalExit unless the exit code is less than 0
+    QProcess::ExitStatus exitStatus() const;
+
+    // Returns the exit code of the last exiftool process that finished.
+    // This value is not valid unless exitStatus() returns NormalExit.
+    int exitCode() const;
+
+    // Returns the native process identifier for the running exiftool process, if available. If no process is currently running, 0 is returned.
+    qint64 processId() const;
+    
+    // Returns the current state of exiftool process (NotRunning, Starting or Running).
+    QProcess::ProcessState state() const;
+    
+    // Blocks until exiftool process has started and the started() signal has been emitted, or until msecs milliseconds have passed (Default: 1 sec timeout).
+    bool waitForStarted(int msecs= 1000);
+    
+    // Blocks until exiftool process has finished and the finished() signal has been emitted, or until msecs milliseconds have passed (Default: no timeout).
+    bool waitForFinished(int msecs= -1);
+
+    // Sends the command to exiftool and returns a unique command ID.
+    // This function is thread-safe, command ID is unique even in threaded environment
+    // Return 0 on errors (ExitTool not running, or args is empty)
+    quint32 command(const QByteArrayList &args);
     
 signals:
     // This signal is emitted by ZExitToolProcess when the process has started, and state() returns Running.
@@ -157,7 +173,7 @@ signals:
     void errorOccurred(QProcess::ProcessError error);
 
     // This slot is called on exiftool command completed
-    void cmdCompleted(int cmdId, int execTime, const QByteArray &cmdOutputChannel, const QByteArray &cmdErrorChannel);
+    void cmdCompleted(int cmdId, const QByteArray &cmdStdOut, const QByteArray &cmdErrOut, qint64 execTime);
 }
 ```
 
@@ -171,7 +187,7 @@ The "etProcess->command(cmdArgs)" function ensures the returned command ID is un
 
 ## Example
 The following repository contains three commented examples based on ZExifToolProcess.
-Open ZExifToolExample.pro in QtCreator and run it or read sources for more information.
+Open ZExifToolProcess_Examples.pro in QtCreator and run it or read sources for more information.
 ![Example 1](https://zupimages.net/up/21/07/5eum.png)
 ![Example 2](https://zupimages.net/up/21/07/tbeo.png)
 

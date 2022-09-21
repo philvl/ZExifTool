@@ -8,16 +8,18 @@
 
 Example3::Example3(QWidget *parent) : QWidget(parent), ui(new Ui::Example3) {
     ui->setupUi(this);
-    const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    const QFont fixedFont= QFontDatabase::systemFont(QFontDatabase::FixedFont);
     ui->textEditStdErr->setFont(fixedFont);
 
     // Create ZExifToolProcess
-    etProcess= new ZExifToolProcess(this);
-  #if defined Q_OS_LINUX || defined Q_OS_MACOS
-    etProcess->setProgram(QLatin1String("./exiftool/exiftool"));
-  #elif defined Q_OS_WINDOWS
-    etProcess->setProgram(QLatin1String("./exiftool.exe"));
+  #ifdef Q_OS_WINDOWS
+    QString etExePath=   QLatin1String("./exiftool.exe");
+    QString perlExePath= QString();
+  #elif defined Q_OS_LINUX || defined Q_OS_MACOS
+    QString etExePath=   QLatin1String("./exiftool/exiftool");
+    QString perlExePath= QString();
   #endif
+    etProcess= new ZExifToolProcess(etExePath, perlExePath, this);
     connect(etProcess, &ZExifToolProcess::started,       this, &Example3::onEtProcessStarted);
     connect(etProcess, &ZExifToolProcess::finished,      this, &Example3::onEtProcessFinished);
     connect(etProcess, &ZExifToolProcess::stateChanged,  this, &Example3::onEtProcessStateChanged);
@@ -26,7 +28,8 @@ Example3::Example3(QWidget *parent) : QWidget(parent), ui(new Ui::Example3) {
 }
 
 Example3::~Example3() {
-    etProcess->kill();
+    // Terminate exiftool safely, before delete Ui
+    etProcess->terminateSafely();
     delete ui;
 }
 
@@ -44,7 +47,7 @@ void Example3::on_pushButtonRead_clicked() {
     cmdArgs << "-json";
     cmdArgs << "-binary";
     cmdArgs << "-G0";
-    cmdArgs << ui->lineEditImgPath->text().toLatin1();
+    cmdArgs << ui->lineEditImgPath->text().toUtf8();
 
     // Send command to ZExifToolProcess
     int cmdId= etProcess->command(cmdArgs);
@@ -55,8 +58,9 @@ void Example3::on_pushButtonWriteDesc_clicked() {
     // Build command
     QByteArrayList cmdArgs;
     cmdArgs << "-json";
+    cmdArgs << "-overwrite_original";
     cmdArgs << "-EXIF:ImageDescription=" + ui->lineEditImgDesc->text().toUtf8();
-    cmdArgs << ui->lineEditImgPath->text().toLatin1();
+    cmdArgs << ui->lineEditImgPath->text().toUtf8();
 
     // Send command to ZExifToolProcess
     int cmdId= etProcess->command(cmdArgs);
@@ -82,9 +86,9 @@ void Example3::onEtProcessFinished(int exitCode, QProcess::ExitStatus exitStatus
 // This slot is called when ZExifToolProcess state changed
 void Example3::onEtProcessStateChanged(QProcess::ProcessState newState) {
     switch(newState) {
-    case QProcess::NotRunning: ui->labelProcessStatus->setText("Not running"); break;
-    case QProcess::Starting:   ui->labelProcessStatus->setText("Starting");    break;
-    case QProcess::Running:    ui->labelProcessStatus->setText("<b>Running...</b>");     break;
+    case QProcess::NotRunning: ui->labelProcessStatus->setText("Not running");       break;
+    case QProcess::Starting:   ui->labelProcessStatus->setText("Starting");          break;
+    case QProcess::Running:    ui->labelProcessStatus->setText("<b>Running...</b>"); break;
     }
 }
 
@@ -99,19 +103,19 @@ void Example3::onEtProcessErrorOccured(QProcess::ProcessError error) {
 // This slot is called on exiftool command completed
 //   cmdOutput channel contains exiftool stdout
 //   cmdError  channel contains exiftool stderr
-void Example3::onEtCmdCompleted(int cmdId, int execTime, const QByteArray &cmdOutput, const QByteArray &cmdError) {
+void Example3::onEtCmdCompleted(int cmdId, const QByteArray &cmdStdOut, const QByteArray &cmdErrOut, qint64 execTime) {
     CmdType cmdType= _queuedCmdType.take(cmdId);
     switch(cmdType) {
     case GetImgInfo:
-        etReturn_getImgInfo(cmdOutput, cmdError);
+        etReturn_getImgInfo(cmdStdOut, cmdErrOut);
         break;
     case SetImgInfo:
-        etReturn_setImgInfo(cmdOutput, cmdError);
+        etReturn_setImgInfo(cmdStdOut, cmdErrOut);
         break;
     }
 
     // Show error (stdErr)
-    ui->textEditStdErr->setPlainText(cmdError);
+    ui->textEditStdErr->setPlainText(cmdErrOut);
 
     // Show info
     ui->labelInfo->setText("Cmd ID: " + QString::number(cmdId) + " - Exec time: " + QString::number(execTime) + "ms");
@@ -184,7 +188,7 @@ int Example3::getSummary(const QByteArray &output, Example3::Summary summary) {
     }
 
     QRegularExpression regExp("([0-9]+) " + msg, QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatch match = regExp.match(output);
+    QRegularExpressionMatch match= regExp.match(output);
     if(match.hasMatch())
         return match.captured(1).toInt();
     return -1;

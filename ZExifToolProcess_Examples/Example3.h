@@ -61,7 +61,7 @@ private slots:
     void onEtProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void onEtProcessStateChanged(QProcess::ProcessState newState);
     void onEtProcessErrorOccured(QProcess::ProcessError error);
-    void onEtCmdCompleted(int cmdId, int execTime, const QByteArray &cmdOutput, const QByteArray &cmdError);
+    void onEtCmdCompleted(int cmdId, const QByteArray &cmdStdOut, const QByteArray &cmdErrOut, qint64 execTime);
 
 private:
     void etReturn_getImgInfo(const QByteArray &cmdOutput, const QByteArray &cmdError);

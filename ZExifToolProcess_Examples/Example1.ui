@@ -14,6 +14,9 @@
    <string>Example 1</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
    <item>
     <widget class="QLabel" name="labelExampleTitle">
      <property name="font">
@@ -30,17 +33,14 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="hLayout1">
+     <property name="spacing">
+      <number>6</number>
+     </property>
      <item>
       <widget class="QLabel" name="labelCmdTxt">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="minimumSize">
         <size>
-         <width>65</width>
+         <width>70</width>
          <height>0</height>
         </size>
        </property>
@@ -50,16 +50,17 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBoxCmd"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButtonRead">
+      <widget class="QComboBox" name="comboBoxCmd">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonRead">
        <property name="text">
         <string>Read</string>
        </property>
@@ -84,18 +85,50 @@
     </spacer>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="hLayout2">
+    <widget class="QPlainTextEdit" name="textEditStdOut">
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+     <property name="tabChangesFocus">
+      <bool>true</bool>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Exiftool standart output (empty)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPlainTextEdit" name="textEditStdErr">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>72</height>
+      </size>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+     <property name="tabChangesFocus">
+      <bool>true</bool>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Exiftool error output (empty)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hLayoutStatus">
      <property name="spacing">
       <number>3</number>
      </property>
      <item>
       <widget class="QLabel" name="labelInfoTxt">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="text">
         <string>Info:</string>
        </property>
@@ -103,6 +136,12 @@
      </item>
      <item>
       <widget class="QLabel" name="labelInfo">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>N/A</string>
        </property>
@@ -110,12 +149,6 @@
      </item>
      <item>
       <widget class="QLabel" name="labelProcessStatusTxt">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="text">
         <string>Process status:</string>
        </property>
@@ -123,12 +156,6 @@
      </item>
      <item>
       <widget class="QLabel" name="labelProcessStatus">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="minimumSize">
         <size>
          <width>72</width>
@@ -136,18 +163,11 @@
         </size>
        </property>
        <property name="text">
-        <string>N/A</string>
+        <string>Not running</string>
        </property>
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QPlainTextEdit" name="textEditStdOut">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

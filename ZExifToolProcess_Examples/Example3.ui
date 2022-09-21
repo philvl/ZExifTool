@@ -14,6 +14,9 @@
    <string>Example 3</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
    <item>
     <widget class="QLabel" name="labelExampleTitle">
      <property name="font">
@@ -30,18 +33,15 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="hLayout1">
+     <property name="spacing">
+      <number>6</number>
+     </property>
      <item>
       <widget class="QLabel" name="labelExifToolTxt">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="minimumSize">
         <size>
          <width>90</width>
-         <height>0</height>
+         <height>24</height>
         </size>
        </property>
        <property name="text">
@@ -51,6 +51,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButtonStart">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Start</string>
        </property>
@@ -60,6 +66,12 @@
       <widget class="QPushButton" name="pushButtonStop">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
        <property name="text">
         <string>Stop</string>
@@ -117,21 +129,18 @@
       </property>
       <item>
        <layout class="QGridLayout" name="gLayout">
+        <property name="horizontalSpacing">
+         <number>6</number>
+        </property>
         <property name="verticalSpacing">
          <number>0</number>
         </property>
         <item row="4" column="1">
          <widget class="QLabel" name="labelExposure">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>120</width>
-            <height>24</height>
+            <height>0</height>
            </size>
           </property>
           <property name="text">
@@ -141,16 +150,10 @@
         </item>
         <item row="5" column="1">
          <widget class="QLabel" name="labelFNumber">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>120</width>
-            <height>24</height>
+            <height>0</height>
            </size>
           </property>
           <property name="text">
@@ -160,16 +163,10 @@
         </item>
         <item row="2" column="1">
          <widget class="QLabel" name="labelMake">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>120</width>
-            <height>24</height>
+            <height>0</height>
            </size>
           </property>
           <property name="text">
@@ -179,12 +176,6 @@
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="labelModelTxt">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>90</width>
@@ -226,16 +217,10 @@
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="labelImgPathTxt">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>90</width>
-            <height>0</height>
+            <height>24</height>
            </size>
           </property>
           <property name="text">
@@ -245,18 +230,6 @@
         </item>
         <item row="5" column="2">
          <widget class="QLabel" name="labelThumbTxt">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>80</width>
-            <height>24</height>
-           </size>
-          </property>
           <property name="text">
            <string>Thumbnail:</string>
           </property>
@@ -264,12 +237,6 @@
         </item>
         <item row="4" column="0">
          <widget class="QLabel" name="labelExposureTxt">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>90</width>
@@ -283,12 +250,6 @@
         </item>
         <item row="7" column="0">
          <widget class="QLabel" name="labelFocalTxt">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>90</width>
@@ -312,12 +273,6 @@
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="labelMakeTxt">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>90</width>
@@ -331,16 +286,10 @@
         </item>
         <item row="7" column="1">
          <widget class="QLabel" name="labelFocal">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>120</width>
-            <height>24</height>
+            <height>0</height>
            </size>
           </property>
           <property name="text">
@@ -357,12 +306,6 @@
         </item>
         <item row="6" column="0">
          <widget class="QLabel" name="labelIsoTxt">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>90</width>
@@ -376,16 +319,10 @@
         </item>
         <item row="3" column="1">
          <widget class="QLabel" name="labelModel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>120</width>
-            <height>24</height>
+            <height>0</height>
            </size>
           </property>
           <property name="text">
@@ -396,7 +333,7 @@
         <item row="0" column="1" colspan="3">
          <widget class="QLineEdit" name="lineEditImgPath">
           <property name="text">
-           <string>test1.jpg</string>
+           <string>test.jpg</string>
           </property>
          </widget>
         </item>
@@ -409,16 +346,10 @@
         </item>
         <item row="6" column="1">
          <widget class="QLabel" name="labelIso">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>120</width>
-            <height>24</height>
+            <height>0</height>
            </size>
           </property>
           <property name="text">
@@ -444,12 +375,6 @@
         </item>
         <item row="5" column="0">
          <widget class="QLabel" name="labelFNumberTxt">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="minimumSize">
            <size>
             <width>90</width>
@@ -463,18 +388,6 @@
         </item>
         <item row="2" column="2">
          <widget class="QLabel" name="labelDescTxt">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>80</width>
-            <height>24</height>
-           </size>
-          </property>
           <property name="text">
            <string>Description:</string>
           </property>
@@ -533,7 +446,7 @@
          <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::MinimumExpanding</enum>
+         <enum>QSizePolicy::Expanding</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -544,33 +457,24 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="labelErrorOutput">
-        <property name="font">
-         <font>
-          <italic>true</italic>
-         </font>
-        </property>
-        <property name="text">
-         <string>Exiftool error output:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPlainTextEdit" name="textEditStdErr">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>60</height>
+          <height>72</height>
          </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="tabChangesFocus">
+         <bool>true</bool>
         </property>
         <property name="readOnly">
          <bool>true</bool>
+        </property>
+        <property name="placeholderText">
+         <string>Exiftool error output (empty)</string>
         </property>
        </widget>
       </item>
@@ -578,18 +482,12 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="hLayout2">
+    <layout class="QHBoxLayout" name="hLayoutStatus">
      <property name="spacing">
       <number>3</number>
      </property>
      <item>
       <widget class="QLabel" name="labelInfoTxt">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="text">
         <string>Info:</string>
        </property>
@@ -597,6 +495,12 @@
      </item>
      <item>
       <widget class="QLabel" name="labelInfo">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>N/A</string>
        </property>
@@ -604,12 +508,6 @@
      </item>
      <item>
       <widget class="QLabel" name="labelProcessStatusTxt">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="text">
         <string>Process status:</string>
        </property>
@@ -617,12 +515,6 @@
      </item>
      <item>
       <widget class="QLabel" name="labelProcessStatus">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="minimumSize">
         <size>
          <width>72</width>
@@ -630,7 +522,7 @@
         </size>
        </property>
        <property name="text">
-        <string>N/A</string>
+        <string>Not running</string>
        </property>
       </widget>
      </item>
@@ -641,7 +533,45 @@
  <tabstops>
   <tabstop>pushButtonStart</tabstop>
   <tabstop>pushButtonStop</tabstop>
+  <tabstop>lineEditImgPath</tabstop>
+  <tabstop>pushButtonRead</tabstop>
+  <tabstop>lineEditImgDesc</tabstop>
+  <tabstop>pushButtonWriteDesc</tabstop>
+  <tabstop>textEditStdErr</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>lineEditImgDesc</sender>
+   <signal>returnPressed()</signal>
+   <receiver>pushButtonWriteDesc</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>576</x>
+     <y>153</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>621</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEditImgPath</sender>
+   <signal>returnPressed()</signal>
+   <receiver>pushButtonRead</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>550</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>635</x>
+     <y>95</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

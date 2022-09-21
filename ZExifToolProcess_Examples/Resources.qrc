@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>help/optOverview.txt</file>
+        <file>img/test.jpg</file>
+        <file>img/test.heic</file>
+    </qresource>
+</RCC>

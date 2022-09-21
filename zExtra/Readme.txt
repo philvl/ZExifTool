@@ -1,0 +1,1 @@
+This folder contains additional code used in examples.
