@@ -51,6 +51,14 @@ compile_commands.json
 # QtCreator local machine specific files for imported projects
 *creator.user*
 
+
 # [Philippe VL add] Exclude DevHeader
-ZExifToolProcess_DevTool.pro
+/ZExifToolProcess_DevTool.pro
 /ZExifToolProcess_DevTool/*
+/ZExifToolProcess_GLI.pro
+/ZExifToolProcess_GLI/*
+
+/ZExifTool_Examples.pro
+/ZExifTool_Examples/*
+/ZExifTool_DevTool.pro
+/ZExifTool_DevTool/*

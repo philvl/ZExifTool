@@ -250,12 +250,12 @@ quint32 ZExifToolProcess::command(const QByteArrayList &args) {
 
     // Build command string from args
     QByteArray cmdStr;
+    cmdStr+= "-echo4\n{ready"+cmdIdStr+"}\n";   // Echo {ready###} to stderr after processing is complete (BugFix: echoX must be before user command agrs)
   #ifdef Q_OS_WINDOWS
     //-- Input/output text formatting
     cmdStr.append("-charset\nfilename=utf8\n"); // Force UTF‑8 encoding for the argument file under MS Windows (ExitTool FAQ 18)
   #endif
     cmdStr+= args.join('\n') + '\n';
-    cmdStr+= "-echo4\n{ready"+cmdIdStr+"}\n";   // Echo {ready###} to stderr after processing is complete
     cmdStr+= "-execute"+cmdIdStr+"\n";          // Execute command and echo {ready###} to stdout after processing is complete
 
     _cmdQueue << cmdStr;

@@ -1,3 +1,8 @@
+### Release v1.1.1 - 2022-12-04
+- Remove useless files into repo
+- BugFix:
+  - {ready###} message may not output on stdErr when exiftool warning appears
+
 ### Release v1.1.0 - 2022-09-21
 - Class Interface changes
   - Change constructor call

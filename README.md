@@ -1,4 +1,4 @@
-# ZExifTool - Qt5 and Qt6 interface for exiftool
+# ZExifTool - Qt6 interface for exiftool
 Qt6 interface for exiftool by Phil Harvey
 
 
